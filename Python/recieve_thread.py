@@ -33,3 +33,4 @@ class RecieveData(Thread):
             for line in response.iter_lines():
                 if line:
                     self.queue.put(json.loads(line.decode('utf-8'))['RTW'])
+
