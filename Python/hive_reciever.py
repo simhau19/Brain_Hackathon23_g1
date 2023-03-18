@@ -18,10 +18,3 @@ thread2.start()
 while True:
     print(queue.get())
 
-
-
-# prev_line = ""
-# with requests.post(url, headers=headers, data=data, stream=True) as response:
-#     for line in response.iter_lines():
-#         if line:
-#             print(line.decode('utf-8'))
