@@ -13,7 +13,18 @@ data = {
     'objectID': '1',
 }
 
-with requests.post(url, headers=headers, data=data, stream=True) as response:
-    for line in response.iter_lines():
-        if line:
-            print(line.decode('utf-8'))
+
+def recieve():
+    with requests.post(url, headers=headers, data=data, stream=True) as response:
+        for line in response.iter_lines():
+            if line:
+                print(line.decode('utf-8'))
+
+def send(transmit_data):
+    headers = {"Synx-Cat" : "1"}
+    data['data'] = transmit_data
+    print(data)
+    requests.post(url, headers=headers, data=data)
+    
+
+send("helo wrld")
