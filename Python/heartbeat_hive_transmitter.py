@@ -4,11 +4,11 @@ import os
 os.system('clear')
 
 domain = 'g1'
-service = 'test1'
+service = 'heartbeat'
 token = 'aToken_36d8715e3531fd8e8c01fcbfd26bf5af1908e14f15014d2d14817b568bc0bb0e'
 
 objectID = '1'  
-tags = ['data']
+tags = ['heartbeat']
 data = ''
 
 url = fr"https://{domain}.cioty.com/{service}"

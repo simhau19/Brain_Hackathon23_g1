@@ -20,7 +20,7 @@ void hive_listen(){
     if(WiFi.status()== WL_CONNECTED){
         WiFiClient client;
 
-        HttpClient http(client, HIVE_URL, 8080);
+        HttpClient http(client, HIVE_URL);
         
         Serial.println("making POST request");
         String postData = "token=aToken_36d8715e3531fd8e8c01fcbfd26bf5af1908e14f15014d2d14817b568bc0bb0e&objectID=2&format=json";
