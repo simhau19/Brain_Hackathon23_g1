@@ -24,13 +24,40 @@ def heartbeat() -> None:
     data = {
         'token': token,
         'objectID': objectID,
-        'heartbeat': randint(60, 80)
+        'heartbeat': randint(60, 70)
     }
-    print(f"Heartbeat: {data['heartbeat']}")
-    result = requests.post(url, headers=headers, data=data)
-    print(result.url)
+    print(f"Heartbeat: {data['heartbeat']} bpm")
+    requests.post(url, headers=headers, data=data)
+
+
+def temperature() -> None:
+    service = 'temp'
+    url = fr"https://{domain}.cioty.com/{service}"
+    data = {
+        'token': token,
+        'objectID': objectID,
+        'data': randint(45, 50)
+    }
+    print(f"Temperature: {data['data']} °C")
+    requests.post(url, headers=headers, data=data)
+
+
+def gps() -> None:
+    service = 'gps'
+    url = fr"https://{domain}.cioty.com/{service}"
+    data = {
+        'token': token,
+        'objectID': objectID,
+        'longitude': 10.40,
+        'latitude': 63.41
+    }
+    print(f"Latitude: {data['latitude']}, Longitude: {data['longitude']}")
+    requests.post(url, headers=headers, data=data)
 
 
 while True:
     heartbeat()
+    temperature()
+    gps()
+    print()
     sleep(1)

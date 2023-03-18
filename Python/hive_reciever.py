@@ -1,28 +1,27 @@
 
 import requests
+from threading import Thread
+from recieve_thread import RecieveData
+from multiprocessing import Queue
 
-domain = 'g1'
-service = 'heartbeat'
-token = 'aToken_36d8715e3531fd8e8c01fcbfd26bf5af1908e14f15014d2d14817b568bc0bb0e'
 
-objectID = '1'
-format = 'json'
+queue = Queue()
+service1 = 'medicase'
+service2 = 'medicase2'
 
-url = fr"https://{domain}.cioty.com/{service}"
+thread1 = RecieveData(service1, queue)
+thread2 = RecieveData(service2, queue)
 
-headers = {
-    "Content-Type":"application/x-www-form-urlencoded",
-    "Synx-Cat":"4"
-}
+thread1.start()
+thread2.start()
 
-data = {
-    'token': token,
-    'objectID': objectID,
-    'format': format
-}
+while True:
+    print(queue.get())
 
-with requests.post(url, headers=headers, data=data, stream=True) as response:
-    print(response.headers)
-    for line in response.iter_lines():
-        if line:
-            print(line.decode('utf-8'))
+
+
+# prev_line = ""
+# with requests.post(url, headers=headers, data=data, stream=True) as response:
+#     for line in response.iter_lines():
+#         if line:
+#             print(line.decode('utf-8'))
