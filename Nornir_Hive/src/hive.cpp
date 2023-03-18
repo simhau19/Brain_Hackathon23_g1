@@ -1,43 +1,91 @@
 #include "hive.h"
 #include "Arduino.h"
-#include "ArduinoHttpClient.h"
 #include "WiFi.h"
-#include "WiFiClientSecure.h"
 
-void wifi_setup(){
+#include <ArduinoJson.h>
+
+WebsocketsClient ws_channel;
+
+void wifi_init() {
+    Serial.print("Connecting to ");
+    Serial.println(WIFI_SSID);
+
     WiFi.begin(WIFI_SSID, WIFI_PASSWD);
-    Serial.print("Connecting to wifi");
 
-    while(WiFi.status() != WL_CONNECTED){
+    while (WiFi.status() != WL_CONNECTED) {
         Serial.print(".");
         delay(500);
     }
-
-    Serial.println("\nConnected to Wifi!");
+    Serial.println();
+    Serial.println("WiFi Connected!");
 }
 
-void hive_listen(){
+void handleReceivedMessage(String message) {
+    Serial.println(message);
+}
 
-    if(WiFi.status()== WL_CONNECTED){
-        WiFiClient client;
-
-        HttpClient http(client, "https://g1.cioty.com", 80);
-        
-        Serial.println("making POST request");
-        String postData = "token=aToken_36d8715e3531fd8e8c01fcbfd26bf5af1908e14f15014d2d14817b568bc0bb0e&objectID=2&format=json";
-        http.beginRequest();
-        http.post("/test1");
-        http.sendHeader("Synx-Cat: 4");
-        //http.sendHeader(HTTP_HEADER_CONTENT_TYPE, "application/x-www-form-urlencoded");
-        http.endRequest();
-        http.write((const byte*)postData.c_str(), postData.length());
-
-        // read the status code and body of the response
-        int statusCode = http.responseStatusCode();
-        String response = http.responseBody();
-        Serial.print("POST Status code: ");
-        Serial.println(statusCode);
-        Serial.print("POST Response: ");
-        Serial.println(response);
+void onEventsCallback(WebsocketsEvent event, String data) {
+    if(event == WebsocketsEvent::ConnectionOpened) {
+        Serial.println("Connnection Opened");
+    } else if(event == WebsocketsEvent::ConnectionClosed) {
+        Serial.println("Connnection Closed");
+    } else if(event == WebsocketsEvent::GotPing) {
+        Serial.println("Got a Ping!");
+    } else if(event == WebsocketsEvent::GotPong) {
+        Serial.println("Got a Pong!");
     }
+}
+
+void sendToken() {
+    StaticJsonDocument<256> doc;
+    JsonObject message = doc.to<JsonObject>();
+    message["token"] = HIVE_TOKEN;
+    String payload = "";
+    serializeJson(message, payload);
+    ws_channel.send(payload);
+}
+
+void sendServiceURL() {
+    StaticJsonDocument<256> doc;
+    JsonObject message = doc.to<JsonObject>();
+    message["url"] = HIVE_SERVICE "/" HIVE_GHOST_ID;
+    String payload = "";
+    serializeJson(message, payload);
+    ws_channel.send(payload);
+}
+
+void ws_init() {
+    ws_channel.onMessage([&](WebsocketsMessage message) {
+        handleReceivedMessage(message.data());
+    });
+    ws_channel.onEvent(onEventsCallback);
+
+    ws_channel.setCACert(cert);
+
+    bool connected = ws_channel.connect(HIVE_URL);
+    if(connected) {
+        Serial.println("Connected!");
+        sendToken();
+        Serial.println("Token sendt!");
+        delay(1000);
+        sendServiceURL();
+    } else {
+        Serial.println("Not Connected!");
+        Serial.println("Please restart the device");
+    }
+}
+
+void hive_init(){
+    wifi_init();
+    ws_init();
+}
+
+void hive_transmit(String data) {
+    StaticJsonDocument<256> doc;
+    JsonObject message = doc.to<JsonObject>();
+    message["DATA"] = data;
+    String payload = "";
+    serializeJson(message, payload);
+    ws_channel.send(payload);
+
 }
