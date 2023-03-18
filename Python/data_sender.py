@@ -56,8 +56,8 @@ def gps() -> None:
 
 
 while True:
-    heartbeat()
+    # heartbeat()
     temperature()
-    gps()
+    # gps()
     print()
     sleep(1)
