@@ -1,11 +1,19 @@
 #include <Arduino.h>
 #include "hive.h"
+#include "sensors.h"
+
+
 
 void setup() {
   Serial.begin(115200);
-  wifi_setup();
+  hive_init();
 }
 
 void loop() {
-  hive_listen();
+  if(ws_channel.available()) {
+        ws_channel.poll();
+    }
+  
+  hive_transmit(String(temp_get()));
+  delay(500);
 }
